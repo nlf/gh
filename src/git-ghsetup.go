@@ -6,53 +6,49 @@ import (
 	"os"
 	"strings"
 
-	"github.com/nlf/go-gh/lib"
-
 	"code.google.com/p/gopass"
+	"github.com/nlf/go-gh/lib"
 )
 
-func Prompt(prompt string) (string, error) {
+func Prompt(prompt string) string {
 	fmt.Printf(prompt)
 	stdin := bufio.NewReader(os.Stdin)
 	line, _, err := stdin.ReadLine()
 
-	return string(line), err
-}
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
 
-func ExitWithError(err error) {
-	fmt.Println(err)
-	os.Exit(1)
+	return string(line)
 }
 
 func main() {
-	user, err := Prompt("Username: ")
-	if err != nil {
-		ExitWithError(err)
-	}
+	user := Prompt("Username: ")
 
 	password, err := gopass.GetPass("Password: ")
 	if err != nil {
-		ExitWithError(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
-	has2fa, err := Prompt("Use two-factor authentication? (y/n) ")
-	if err != nil {
-		ExitWithError(err)
-	}
-
+	has2fa := Prompt("Use two-factor authentication? (y/n) ")
 	has2fa = strings.ToLower(has2fa)
 	token := ""
 
 	if has2fa == "y" || has2fa == "yes" {
-		token, err = Prompt("Token: ")
-		if err != nil {
-			ExitWithError(err)
-		}
+		token = Prompt("Token: ")
 	}
 
-	generatedToken, err := github.CreateToken(user, password, token)
+	baseUrl := Prompt("Base URL (https://api.github.com): ")
+	if baseUrl == "" {
+		baseUrl = "https://api.github.com"
+	}
+
+	generatedToken, err := github.CreateToken(baseUrl, user, password, token)
 	if err != nil {
-		ExitWithError(err)
+		fmt.Println(err)
+		os.Exit(1)
 	}
 
 	fmt.Println(generatedToken)

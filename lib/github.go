@@ -3,6 +3,7 @@ package github
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"net/http"
 )
 
@@ -25,7 +26,7 @@ func (err *ErrorResponse) Error() string {
 	return err.Message
 }
 
-func CreateToken(user string, password string, token string) (*TokenResponse, error) {
+func CreateToken(baseUrl string, user string, password string, otp string) (*TokenResponse, error) {
 	client := &http.Client{}
 
 	tokenRequest := &TokenRequest{Scopes: []string{"repo"}, Note: "go-gh extensions"}
@@ -34,14 +35,14 @@ func CreateToken(user string, password string, token string) (*TokenResponse, er
 		return nil, err
 	}
 
-	req, err := http.NewRequest("POST", "https://api.github.com/authorizations", bytes.NewReader(tokenJson))
+	req, err := http.NewRequest("POST", baseUrl+"/authorizations", bytes.NewReader(tokenJson))
 	if err != nil {
 		return nil, err
 	}
 
 	req.SetBasicAuth(user, password)
-	if token != "" {
-		req.Header.Add("X-GitHub-OTP", token)
+	if otp != "" {
+		req.Header.Add("X-GitHub-OTP", otp)
 	}
 
 	req.Header.Add("Content-Type", "application/json")
@@ -53,13 +54,14 @@ func CreateToken(user string, password string, token string) (*TokenResponse, er
 
 	defer resp.Body.Close()
 
+	fmt.Println(resp.StatusCode)
 	if resp.StatusCode != 201 {
 		errorResp := &ErrorResponse{}
 		json.NewDecoder(resp.Body).Decode(&errorResp)
 		return nil, errorResp
-	} else {
-		tokenResp := &TokenResponse{}
-		json.NewDecoder(resp.Body).Decode(&tokenResp)
-		return tokenResp, nil
 	}
+
+	tokenResp := &TokenResponse{}
+	json.NewDecoder(resp.Body).Decode(&tokenResp)
+	return tokenResp, nil
 }
