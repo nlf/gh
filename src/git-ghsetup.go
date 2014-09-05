@@ -57,23 +57,4 @@ func main() {
 
 	fmt.Println(generatedToken)
 	os.Exit(0)
-
-	// client := &http.Client{}
-	// req, err := http.NewRequest("GET", "https://api.github.com/users/nlf", nil)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// req.SetBasicAuth(user, passwd)
-	// req.Header.Add("X-GitHub-OTP", token)
-	//
-	// resp, err := client.Do(req)
-	// if err != nil {
-	// 	fmt.Println(err)
-	// }
-	// defer resp.Body.Close()
-	//
-	// ghUser := &githubUser{}
-	// json.NewDecoder(resp.Body).Decode(&ghUser)
-	//
-	// fmt.Println(ghUser)
 }
