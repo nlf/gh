@@ -43,12 +43,12 @@ func CreateToken(baseUrl string, user string, password string, otp string) (Toke
 	tokenRequest := &TokenRequest{Scopes: []string{"repo"}, Note: "go-gh extensions"}
 	tokenJson, err := json.Marshal(tokenRequest)
 	if err != nil {
-		return nil, err
+		return *&TokenResponse{}, err
 	}
 
 	req, err := http.NewRequest("POST", baseUrl+"/authorizations", bytes.NewReader(tokenJson))
 	if err != nil {
-		return nil, err
+		return *&TokenResponse{}, err
 	}
 
 	req.SetBasicAuth(user, password)
@@ -60,7 +60,7 @@ func CreateToken(baseUrl string, user string, password string, otp string) (Toke
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return nil, err
+		return *&TokenResponse{}, err
 	}
 
 	defer resp.Body.Close()
@@ -68,7 +68,7 @@ func CreateToken(baseUrl string, user string, password string, otp string) (Toke
 	if resp.StatusCode != 201 {
 		errorResp := &ErrorResponse{}
 		json.NewDecoder(resp.Body).Decode(&errorResp)
-		return nil, errorResp
+		return *&TokenResponse{}, errorResp
 	}
 
 	tokenResp := &TokenResponse{}

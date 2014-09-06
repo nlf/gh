@@ -39,6 +39,6 @@ func GetConfigPath() string {
 		log.Fatal(err)
 	}
 
-	configPath := currentUser.HomeDir + "/.go-gh"
+	configPath := currentUser.HomeDir + "/.gh"
 	return configPath
 }

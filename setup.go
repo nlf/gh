@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"code.google.com/p/gopass"
-	"github.com/nlf/go-gh"
+	"github.com/codegangsta/cli"
+	"github.com/nlf/gh/github"
 )
 
 func Prompt(prompt string) string {
@@ -23,7 +23,7 @@ func Prompt(prompt string) string {
 	return string(line)
 }
 
-func main() {
+func Setup(c *cli.Context) {
 	user := Prompt("Username: ")
 
 	password, err := gopass.GetPass("Password: ")
@@ -31,18 +31,12 @@ func main() {
 		log.Fatal(err)
 	}
 
-	has2fa := Prompt("Use two-factor authentication? (y/n) ")
-	has2fa = strings.ToLower(has2fa)
 	token := ""
-
-	if has2fa == "y" || has2fa == "yes" {
+	if c.Bool("two-factor") {
 		token = Prompt("Token: ")
 	}
 
-	baseUrl := Prompt("API URL (https://api.github.com): ")
-	if baseUrl == "" {
-		baseUrl = "https://api.github.com"
-	}
+	baseUrl := c.String("url")
 
 	generatedToken, err := github.CreateToken(baseUrl, user, password, token)
 	if err != nil {
@@ -53,4 +47,21 @@ func main() {
 	client.SaveConfig()
 
 	os.Exit(0)
+}
+
+var SetupCommand cli.Command = cli.Command{
+	Name:   "setup",
+	Usage:  "create a configuration for gh",
+	Action: Setup,
+	Flags: []cli.Flag{
+		cli.BoolFlag{
+			Name:  "two-factor,2fa",
+			Usage: "Enable two-factor authentication",
+		},
+		cli.StringFlag{
+			Name:  "url",
+			Value: "https://api.github.com",
+			Usage: "URL to use for the GitHub API",
+		},
+	},
 }
