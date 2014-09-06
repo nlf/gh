@@ -3,11 +3,12 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"log"
 	"os"
 	"strings"
 
 	"code.google.com/p/gopass"
-	"github.com/nlf/go-gh/lib"
+	"github.com/nlf/go-gh"
 )
 
 func Prompt(prompt string) string {
@@ -16,8 +17,7 @@ func Prompt(prompt string) string {
 	line, _, err := stdin.ReadLine()
 
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	return string(line)
@@ -28,8 +28,7 @@ func main() {
 
 	password, err := gopass.GetPass("Password: ")
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
 	has2fa := Prompt("Use two-factor authentication? (y/n) ")
@@ -40,17 +39,18 @@ func main() {
 		token = Prompt("Token: ")
 	}
 
-	baseUrl := Prompt("Base URL (https://api.github.com): ")
+	baseUrl := Prompt("API URL (https://api.github.com): ")
 	if baseUrl == "" {
 		baseUrl = "https://api.github.com"
 	}
 
 	generatedToken, err := github.CreateToken(baseUrl, user, password, token)
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		log.Fatal(err)
 	}
 
-	fmt.Println(generatedToken)
+	client := &github.Client{BaseURL: baseUrl, Token: generatedToken.Token}
+	client.SaveConfig()
+
 	os.Exit(0)
 }
