@@ -7,6 +7,13 @@ import (
 	"net/http"
 )
 
+func GetClient() Client {
+	client := &Client{}
+	client.LoadConfig()
+
+	return *client
+}
+
 func (client *Client) GetIssues(repo string) ([]Issue, error) {
 	httpClient := &http.Client{}
 	req, err := http.NewRequest("GET", client.BaseURL+"/repos/"+repo+"/issues", nil)

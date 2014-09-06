@@ -40,9 +40,7 @@ func PrintIssue(issue github.Issue, bold bool) {
 }
 
 func Issues(c *cli.Context) {
-	client := &github.Client{}
-	client.LoadConfig()
-
+	client := github.GetClient()
 	repo := github.GetRepo()
 
 	issues, err := client.GetIssues(repo)
