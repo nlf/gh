@@ -43,7 +43,7 @@ func Issues(c *cli.Context) {
 	client := github.GetClient()
 	repo := github.GetRepo()
 
-	issues, err := client.GetIssues(repo)
+	issues, err := client.GetIssues(repo, c.StringSlice("label"), c.String("milestone"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -71,8 +71,9 @@ var IssuesCommand cli.Command = cli.Command{
 			Name:  "milestone,m",
 			Usage: "milestone filter to apply",
 		},
-		cli.StringFlag{
+		cli.StringSliceFlag{
 			Name:  "label,l",
+			Value: &cli.StringSlice{},
 			Usage: "label filter to apply",
 		},
 	},
