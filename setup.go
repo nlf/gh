@@ -51,7 +51,7 @@ func Setup(c *cli.Context) {
 
 var SetupCommand cli.Command = cli.Command{
 	Name:   "setup",
-	Usage:  "create a configuration for gh",
+	Usage:  "Create a configuration for gh",
 	Action: Setup,
 	Flags: []cli.Flag{
 		cli.BoolFlag{

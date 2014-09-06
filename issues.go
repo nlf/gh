@@ -64,17 +64,17 @@ func Issues(c *cli.Context) {
 var IssuesCommand cli.Command = cli.Command{
 	Name:      "issues",
 	ShortName: "is",
-	Usage:     "list github issues",
+	Usage:     "List GitHub issues",
 	Action:    Issues,
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "milestone,m",
-			Usage: "milestone filter to apply",
+			Usage: "Milestone filter to apply",
 		},
 		cli.StringSliceFlag{
 			Name:  "label,l",
 			Value: &cli.StringSlice{},
-			Usage: "label filter to apply",
+			Usage: "Label filter to apply",
 		},
 	},
 }
