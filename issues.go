@@ -63,7 +63,7 @@ func Issues(c *cli.Context) {
 	}
 }
 
-var IssueCommand cli.Command = cli.Command{
+var IssuesCommand cli.Command = cli.Command{
 	Name:      "issues",
 	ShortName: "is",
 	Usage:     "list github issues",
