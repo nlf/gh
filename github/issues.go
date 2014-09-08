@@ -24,30 +24,63 @@ type Issue struct {
 	Updated     string      `json:"updated_at"`
 }
 
+type IssueParams struct {
+	Milestone string
+	State     string
+	Assignee  string
+	Creator   string
+	Mentioned string
+	Labels    []string
+	Sort      string
+	Direction string
+	Since     string
+}
+
 type IssueSlice []Issue
 
-func (client Client) GetIssues(repo string, labels []string, milestone string) (IssueSlice, error) {
+func (client Client) GetIssues(repo string, params IssueParams) (IssueSlice, error) {
 	query := make(map[string]string)
-	if len(labels) > 0 {
-		query["labels"] = strings.Join(labels, ",")
+
+	query["state"] = params.State
+	query["sort"] = params.Sort
+	query["direction"] = params.Direction
+
+	if len(params.Labels) > 0 {
+		query["labels"] = strings.Join(params.Labels, ",")
 	}
 
-	if milestone != "" {
-		if milestone == "none" || milestone == "*" {
-			query["milestone"] = milestone
+	if params.Milestone != "" {
+		if params.Milestone == "none" || params.Milestone == "*" {
+			query["milestone"] = params.Milestone
 		} else {
 			milestones, err := client.GetMilestones(repo, "all")
 			if err != nil {
 				log.Fatal(err)
 			}
 
-			for _, mstone := range milestones {
-				if mstone.Title == milestone {
-					query["milestone"] = fmt.Sprintf("%d", mstone.Number)
+			for _, milestone := range milestones {
+				if milestone.Title == params.Milestone {
+					query["milestone"] = fmt.Sprintf("%d", milestone.Number)
 					break
 				}
 			}
 		}
+	}
+
+	if params.Assignee != "" {
+		query["assignee"] = params.Assignee
+	}
+
+	if params.Creator != "" {
+		query["creator"] = params.Creator
+	}
+
+	if params.Mentioned != "" {
+		query["mentioned"] = params.Mentioned
+	}
+
+	if params.Since != "" {
+		query["since"] = params.Since
 	}
 
 	issues := IssueSlice{}

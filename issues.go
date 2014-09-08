@@ -44,15 +44,27 @@ func Issues(c *cli.Context) {
 	client := github.GetClient()
 	repo := git.GetRepo()
 
-	issues, err := client.GetIssues(repo, c.StringSlice("label"), c.String("milestone"))
+	params := github.IssueParams{
+		Milestone: c.String("milestone"),
+		State:     c.String("state"),
+		Assignee:  c.String("assignee"),
+		Creator:   c.String("creator"),
+		Mentioned: c.String("mentioned"),
+		Labels:    c.StringSlice("label"),
+		Sort:      c.String("sort"),
+		Direction: c.String("direction"),
+		Since:     c.String("since"),
+	}
+
+	issues, err := client.GetIssues(repo, params)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	bold := false
 
-	PrintHeader()
 	if len(issues) > 0 {
+		PrintHeader()
 		for _, issue := range issues {
 			PrintIssue(issue, bold)
 			bold = !bold
@@ -70,12 +82,43 @@ var IssuesCommand cli.Command = cli.Command{
 	Flags: []cli.Flag{
 		cli.StringFlag{
 			Name:  "milestone,m",
-			Usage: "Milestone filter to apply",
+			Usage: "Milestone (none, *, or a milestone name)",
+		},
+		cli.StringFlag{
+			Name:  "state,s",
+			Usage: "Issue state (open, closed, all)",
+			Value: "all",
+		},
+		cli.StringFlag{
+			Name:  "assignee",
+			Usage: "Assignee (none, *, or a username)",
+		},
+		cli.StringFlag{
+			Name:  "creator",
+			Usage: "Creator (must be a username)",
+		},
+		cli.StringFlag{
+			Name:  "mentioned",
+			Usage: "Mentioned (must be a username)",
 		},
 		cli.StringSliceFlag{
 			Name:  "label,l",
 			Value: &cli.StringSlice{},
 			Usage: "Label filter to apply",
+		},
+		cli.StringFlag{
+			Name:  "sort",
+			Usage: "Sort by (created, updated, comments)",
+			Value: "created",
+		},
+		cli.StringFlag{
+			Name:  "direction",
+			Usage: "Sort direction (asc, desc)",
+			Value: "desc",
+		},
+		cli.StringFlag{
+			Name:  "since",
+			Usage: "Timestamp issue must be newer than (YYYY-MM-DDTHH:MM:SSZ format)",
 		},
 	},
 }
