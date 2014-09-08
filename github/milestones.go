@@ -21,7 +21,9 @@ type Milestone struct {
 	DueOn        string `json:"due_on"`
 }
 
-func (client Client) GetMilestones(repo string, state string) ([]Milestone, error) {
+type MilestoneSlice []Milestone
+
+func (client Client) GetMilestones(repo string, state string) (MilestoneSlice, error) {
 	httpClient := http.Client{}
 	u, err := url.Parse(client.BaseURL)
 	if err != nil {
@@ -55,7 +57,7 @@ func (client Client) GetMilestones(repo string, state string) ([]Milestone, erro
 		return nil, errorResp
 	}
 
-	milestones := []Milestone{}
+	milestones := MilestoneSlice{}
 	json.NewDecoder(resp.Body).Decode(&milestones)
 	return milestones, nil
 }

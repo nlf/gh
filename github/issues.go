@@ -27,7 +27,9 @@ type Issue struct {
 	Updated     string      `json:"updated_at"`
 }
 
-func (client Client) GetIssues(repo string, labels []string, milestone string) ([]Issue, error) {
+type IssueSlice []Issue
+
+func (client Client) GetIssues(repo string, labels []string, milestone string) (IssueSlice, error) {
 	httpClient := http.Client{}
 	u, err := url.Parse(client.BaseURL)
 	if err != nil {
@@ -82,7 +84,7 @@ func (client Client) GetIssues(repo string, labels []string, milestone string) (
 		return nil, errorResp
 	}
 
-	issues := []Issue{}
+	issues := IssueSlice{}
 	json.NewDecoder(resp.Body).Decode(&issues)
 	return issues, nil
 }
