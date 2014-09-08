@@ -87,7 +87,7 @@ var IssuesCommand cli.Command = cli.Command{
 		cli.StringFlag{
 			Name:  "state,s",
 			Usage: "Issue state (open, closed, all)",
-			Value: "all",
+			Value: "open",
 		},
 		cli.StringFlag{
 			Name:  "assignee",
