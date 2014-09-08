@@ -27,13 +27,6 @@ type Issue struct {
 	Updated     string      `json:"updated_at"`
 }
 
-type PullRequest struct {
-	URL      string `json:"url"`
-	HtmlURL  string `json:"html_url"`
-	DiffURL  string `json:"diff_url"`
-	PatchURL string `json:"patch_url"`
-}
-
 func (client Client) GetIssues(repo string, labels []string, milestone string) ([]Issue, error) {
 	httpClient := http.Client{}
 	u, err := url.Parse(client.BaseURL)
