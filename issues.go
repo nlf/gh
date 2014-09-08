@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/codegangsta/cli"
+	"github.com/nlf/gh/git"
 	"github.com/nlf/gh/github"
 )
 
@@ -41,7 +42,7 @@ func PrintIssue(issue github.Issue, bold bool) {
 
 func Issues(c *cli.Context) {
 	client := github.GetClient()
-	repo := github.GetRepo()
+	repo := git.GetRepo()
 
 	issues, err := client.GetIssues(repo, c.StringSlice("label"), c.String("milestone"))
 	if err != nil {

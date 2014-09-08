@@ -24,6 +24,7 @@ func Prompt(prompt string) string {
 }
 
 func Setup(c *cli.Context) {
+	client := github.Client{}
 	user := Prompt("Username: ")
 
 	password, err := gopass.GetPass("Password: ")
@@ -36,14 +37,14 @@ func Setup(c *cli.Context) {
 		token = Prompt("Token: ")
 	}
 
-	baseUrl := c.String("url")
+	client.BaseURL = c.String("url")
 
-	generatedToken, err := github.CreateToken(baseUrl, user, password, token)
+	generatedToken, err := client.CreateToken(user, password, token)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	client := github.Client{BaseURL: baseUrl, Token: generatedToken.Token}
+	client.Token = generatedToken.Token
 	client.SaveConfig()
 
 	os.Exit(0)
