@@ -43,7 +43,7 @@ func Setup(c *cli.Context) {
 		log.Fatal(err)
 	}
 
-	client := &github.Client{BaseURL: baseUrl, Token: generatedToken.Token}
+	client := github.Client{BaseURL: baseUrl, Token: generatedToken.Token}
 	client.SaveConfig()
 
 	os.Exit(0)
