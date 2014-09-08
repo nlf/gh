@@ -20,7 +20,7 @@ func (client *Client) LoadConfig() {
 	}
 }
 
-func (client *Client) SaveConfig() {
+func (client Client) SaveConfig() {
 	configPath := GetConfigPath()
 	configJson, err := json.Marshal(client)
 	if err != nil {

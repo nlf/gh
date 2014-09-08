@@ -11,14 +11,14 @@ import (
 )
 
 func GetClient() Client {
-	client := &Client{}
+	client := Client{}
 	client.LoadConfig()
 
-	return *client
+	return client
 }
 
-func (client *Client) GetMilestones(repo string, state string) ([]Milestone, error) {
-	httpClient := &http.Client{}
+func (client Client) GetMilestones(repo string, state string) ([]Milestone, error) {
+	httpClient := http.Client{}
 	u, err := url.Parse(client.BaseURL)
 	if err != nil {
 		log.Fatal(err)
@@ -47,17 +47,17 @@ func (client *Client) GetMilestones(repo string, state string) ([]Milestone, err
 
 	if resp.StatusCode != 200 {
 		errorResp := &ErrorResponse{}
-		json.NewDecoder(resp.Body).Decode(&errorResp)
+		json.NewDecoder(resp.Body).Decode(errorResp)
 		return nil, errorResp
 	}
 
-	milestones := &[]Milestone{}
+	milestones := []Milestone{}
 	json.NewDecoder(resp.Body).Decode(&milestones)
-	return *milestones, nil
+	return milestones, nil
 }
 
-func (client *Client) GetIssues(repo string, labels []string, milestone string) ([]Issue, error) {
-	httpClient := &http.Client{}
+func (client Client) GetIssues(repo string, labels []string, milestone string) ([]Issue, error) {
+	httpClient := http.Client{}
 	u, err := url.Parse(client.BaseURL)
 	if err != nil {
 		log.Fatal(err)
@@ -107,28 +107,28 @@ func (client *Client) GetIssues(repo string, labels []string, milestone string) 
 
 	if resp.StatusCode != 200 {
 		errorResp := &ErrorResponse{}
-		json.NewDecoder(resp.Body).Decode(&errorResp)
+		json.NewDecoder(resp.Body).Decode(errorResp)
 		return nil, errorResp
 	}
 
-	issues := &[]Issue{}
+	issues := []Issue{}
 	json.NewDecoder(resp.Body).Decode(&issues)
-	return *issues, nil
+	return issues, nil
 }
 
 // This method doesn't use the normal client since it is used to generate the config
 func CreateToken(baseUrl string, user string, password string, otp string) (TokenResponse, error) {
-	client := &http.Client{}
+	client := http.Client{}
 
-	tokenRequest := &TokenRequest{Scopes: []string{"repo"}, Note: "go-gh extensions"}
+	tokenRequest := TokenRequest{Scopes: []string{"repo"}, Note: "go-gh extensions"}
 	tokenJson, err := json.Marshal(tokenRequest)
 	if err != nil {
-		return *&TokenResponse{}, err
+		return TokenResponse{}, err
 	}
 
 	req, err := http.NewRequest("POST", baseUrl+"/authorizations", bytes.NewReader(tokenJson))
 	if err != nil {
-		return *&TokenResponse{}, err
+		return TokenResponse{}, err
 	}
 
 	req.SetBasicAuth(user, password)
@@ -140,18 +140,18 @@ func CreateToken(baseUrl string, user string, password string, otp string) (Toke
 
 	resp, err := client.Do(req)
 	if err != nil {
-		return *&TokenResponse{}, err
+		return TokenResponse{}, err
 	}
 
 	defer resp.Body.Close()
 
 	if resp.StatusCode != 201 {
 		errorResp := &ErrorResponse{}
-		json.NewDecoder(resp.Body).Decode(&errorResp)
-		return *&TokenResponse{}, errorResp
+		json.NewDecoder(resp.Body).Decode(errorResp)
+		return TokenResponse{}, errorResp
 	}
 
-	tokenResp := &TokenResponse{}
+	tokenResp := TokenResponse{}
 	json.NewDecoder(resp.Body).Decode(&tokenResp)
-	return *tokenResp, nil
+	return tokenResp, nil
 }
