@@ -1,12 +1,5 @@
 package github
 
-import (
-	"encoding/json"
-	"log"
-	"net/http"
-	"net/url"
-)
-
 type Milestone struct {
 	URL          string `json:"url"`
 	Number       uint32 `json:"number"`
@@ -24,40 +17,16 @@ type Milestone struct {
 type MilestoneSlice []Milestone
 
 func (client Client) GetMilestones(repo string, state string) (MilestoneSlice, error) {
-	httpClient := http.Client{}
-	u, err := url.Parse(client.BaseURL)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	u.Path = u.Path + "/repos/" + repo + "/milestones"
+	query := make(map[string]string)
 	if state != "" {
-		u.Query().Add("state", state)
-	}
-
-	req, err := http.NewRequest("GET", u.String(), nil)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	req.Header.Add("Accept", "application/json")
-	req.Header.Add("User-Agent", "go-gh")
-	req.Header.Add("Authorization", "token "+client.Token)
-
-	resp, err := httpClient.Do(req)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	defer resp.Body.Close()
-
-	if resp.StatusCode != 200 {
-		errorResp := &ErrorResponse{}
-		json.NewDecoder(resp.Body).Decode(errorResp)
-		return nil, errorResp
+		query["state"] = state
 	}
 
 	milestones := MilestoneSlice{}
-	json.NewDecoder(resp.Body).Decode(&milestones)
+	err := client.Request("GET", "/repos/"+repo+"/milestones", query, nil, &milestones)
+	if err != nil {
+		return nil, err
+	}
+
 	return milestones, nil
 }

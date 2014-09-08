@@ -1,9 +1,12 @@
 package github
 
 import (
+	"bytes"
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"net/http"
+	"net/url"
 	"os/user"
 )
 
@@ -26,6 +29,48 @@ func GetClient() Client {
 	client.LoadConfig()
 
 	return client
+}
+
+func (client Client) Request(method string, path string, query map[string]string, payload []byte, receiver interface{}) error {
+	httpClient := http.Client{}
+	u, err := url.Parse(client.BaseURL)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	u.Path += path
+	q := u.Query()
+
+	for key, val := range query {
+		q.Add(key, val)
+	}
+
+	u.RawQuery = q.Encode()
+
+	req, err := http.NewRequest(method, u.String(), bytes.NewReader(payload))
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	req.Header.Add("Accept", "application/json")
+	req.Header.Add("User-Agent", "gh")
+	req.Header.Add("Authorization", "token "+client.Token)
+
+	resp, err := httpClient.Do(req)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != 200 {
+		errorResp := &ErrorResponse{}
+		json.NewDecoder(resp.Body).Decode(errorResp)
+		return errorResp
+	}
+
+	json.NewDecoder(resp.Body).Decode(receiver)
+	return nil
 }
 
 func (client *Client) LoadConfig() {
