@@ -9,4 +9,4 @@ Instead of generating several `git-` style binaries, it builds only one binary `
 Implemented so far:
 
 * `gh setup`
-* `gh issues [--milestone] [--label]`
+* `gh issues [--milestone] [--label] [--state] [--assignee] [--creator] [--mentioned] [--sort] [--direction] [--since]`
